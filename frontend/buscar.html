@@ -22,14 +22,12 @@
             background-attachment: fixed;
         }
 
-        /* Fundo suavizado para maior nitidez do background */
         .overlay-dark {
-            background: rgba(0, 0, 0, 0.50); /* MAIS LEVE */
+            background: rgba(0, 0, 0, 0.50);
             min-height: 100vh;
             padding-bottom: 80px;
         }
 
-        /* Navbar premium */
         .navbar-dark {
             background: rgba(0, 0, 0, 0.85) !important;
             backdrop-filter: blur(6px);
@@ -50,7 +48,6 @@
             color: #ffcc00 !important;
         }
 
-        /* Área de busca */
         .search-container {
             background: rgba(20, 20, 20, 0.85);
             padding: 30px;
@@ -88,7 +85,6 @@
             background-color: #e6b800;
         }
 
-        /* Cards premium */
         .product-card {
             background: #1b1b1b;
             color: white;
@@ -120,7 +116,6 @@
             background-color: #e6b800;
         }
 
-        /* Loading */
         #loading {
             color: #ffcc00;
             font-size: 1.2rem;
@@ -128,13 +123,12 @@
             display: none;
         }
 
-        /* Mensagem de erro */
         #noResultsMessage {
             color: #ff6666;
             font-size: 1.1rem;
+            display: none;
         }
 
-        /* FOOTER FIXO */
         .footer-fixed {
             background-color: rgba(0,0,0,0.85);
             padding: 12px 0;
@@ -164,23 +158,57 @@
 
             <div class="collapse navbar-collapse" id="navMenu">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house"></i> Início</a></li>
-                    <li class="nav-item active"><a class="nav-link" href="buscar.html"><i class="bi bi-search"></i> Buscar</a></li>
-                    <li class="nav-item"><a class="nav-link" href="alertas.html"><i class="bi bi-bell"></i> Alertas</a></li>
-                    <li class="nav-item"><a class="nav-link" href="feedback.html"><i class="bi bi-chat-dots"></i> Feedback</a></li>
-                    <li class="nav-item"><a class="nav-link" href="configurar.html"><i class="bi bi-gear"></i> Configurações</a></li>
-                    <li><a href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a></li>
-                </ul>
+                    <li class="nav-item d-none" id="logoutNav">
+                        <a class="nav-link" href="#" id="logoutLink">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
+                    </li>
 
-                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="bi bi-house"></i> Início
+                        </a>
+                    </li>
+
+                    <li class="nav-item active">
+                        <a class="nav-link" href="buscar.html">
+                            <i class="bi bi-search"></i> Buscar
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="alertas.html">
+                            <i class="bi bi-bell"></i> Alertas
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="feedback.html">
+                            <i class="bi bi-chat-dots"></i> Feedback
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="configurar.html">
+                            <i class="bi bi-gear"></i> Configurações</a>
+                    </li>
+
                     <li class="nav-item" id="loginNav">
                         <a class="nav-link" href="login.html">
                             <i class="bi bi-box-arrow-in-right"></i> Login
                         </a>
                     </li>
+                </ul>
 
-                    <li class="nav-item d-none" id="logoutNav">
-                        <a class="nav-link" href="#" id="logoutLink">
+                <ul class="navbar-nav">
+                    <li class="nav-item" id="loginNavRight">
+                        <a class="nav-link" href="login.html">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </a>
+                    </li>
+
+                    <li class="nav-item d-none" id="logoutNavRight">
+                        <a class="nav-link" href="#" id="logoutLinkRight">
                             <i class="bi bi-box-arrow-right"></i> Logout
                         </a>
                     </li>
@@ -191,6 +219,11 @@
         <!-- ÁREA DE BUSCA -->
         <div class="search-container">
             <h2><i class="bi bi-search"></i> Buscar Produtos</h2>
+
+            <!-- IMAGEM DA CATEGORIA (inicialmente escondida) -->
+            <div id="imagem-categoria" class="mt-3" style="display:none;">
+                <img id="categoria-thumb" src="" style="width:120px; border-radius:8px;">
+            </div>
 
             <form id="searchForm" class="mt-3">
                 <div class="input-group">
@@ -203,8 +236,10 @@
                 </div>
             </form>
 
-            <div id="loading"><i class="bi bi-hourglass-split"></i> Buscando ofertas...</div>
-            <p id="noResultsMessage" class="mt-3" style="display: none;"></p>
+            <div id="loading">
+                <i class="bi bi-hourglass-split"></i> Buscando ofertas...
+            </div>
+            <p id="noResultsMessage" class="mt-3"></p>
         </div>
 
         <!-- RESULTADOS -->
@@ -221,18 +256,76 @@
     <script>
         const token = localStorage.getItem("token");
 
-        if (token) {
-            loginNav.classList.add("d-none");
-            logoutNav.classList.remove("d-none");
+        const loginNav      = document.getElementById("loginNav");
+        const logoutNav     = document.getElementById("logoutNav");
+        const loginNavRight = document.getElementById("loginNavRight");
+        const logoutNavRight= document.getElementById("logoutNavRight");
+        const logoutLink    = document.getElementById("logoutLink");
+        const logoutLinkRight = document.getElementById("logoutLinkRight");
+
+        function atualizarNavbarAutenticacao() {
+            if (token) {
+                loginNav?.classList.add("d-none");
+                loginNavRight?.classList.add("d-none");
+                logoutNav?.classList.remove("d-none");
+                logoutNavRight?.classList.remove("d-none");
+            } else {
+                loginNav?.classList.remove("d-none");
+                loginNavRight?.classList.remove("d-none");
+                logoutNav?.classList.add("d-none");
+                logoutNavRight?.classList.add("d-none");
+            }
         }
 
-        if (logoutLink) {
-            logoutLink.addEventListener("click", () => {
-                localStorage.removeItem("token");
-                alert("Logout realizado!");
-                window.location.href = "index.html";
-            });
+        atualizarNavbarAutenticacao();
+
+        function realizarLogout(e) {
+            e?.preventDefault();
+            localStorage.removeItem("token");
+            alert("Logout realizado!");
+            window.location.href = "index.html";
         }
+
+        logoutLink?.addEventListener("click", realizarLogout);
+        logoutLinkRight?.addEventListener("click", realizarLogout);
+
+
+        /* -------------------------
+           FEATURE: IMAGEM DA CATEGORIA
+        ------------------------- */
+        function atualizarImagemCategoria(busca) {
+            const divImg = document.getElementById("imagem-categoria");
+            const imgEl = document.getElementById("categoria-thumb");
+
+            if (!busca) {
+                divImg.style.display = "none";
+                return;
+            }
+
+            const termo = busca.toLowerCase();
+            let imagemSelecionada = null;
+
+            if (termo.includes("mouse")) {
+                imagemSelecionada = "imgfeature/mouse.png";
+            } 
+            else if (termo.includes("teclado")) {
+                imagemSelecionada = "imgfeature/teclado.png";
+            }
+            else if (termo.includes("monitor")) {
+                imagemSelecionada = "imgfeature/monitor.png";
+            }
+            else if (termo.includes("pendrive")) {
+                imagemSelecionada = "imgfeature/pendrive.png";
+            }
+            else {
+                divImg.style.display = "none";
+                return;
+            }
+
+            imgEl.src = imagemSelecionada;
+            divImg.style.display = "block";
+        }
+
 
         document.getElementById('searchForm').addEventListener('submit', buscarProdutos);
 
@@ -240,6 +333,9 @@
             event.preventDefault();
 
             const nome = document.getElementById('productName').value;
+
+            atualizarImagemCategoria(nome);
+
             const resultList = document.getElementById('resultList');
             const noResultsMessage = document.getElementById('noResultsMessage');
             const loading = document.getElementById('loading');
@@ -249,7 +345,10 @@
             loading.style.display = "block";
 
             try {
-                const response = await fetch(`http://localhost:8000/buscar-produtos?nome=${encodeURIComponent(nome)}`);
+                const response = await fetch(
+                    `http://localhost:8000/buscar-produtos?nome=${encodeURIComponent(nome)}`
+                );
+
                 loading.style.display = "none";
 
                 if (!response.ok) {
@@ -261,7 +360,7 @@
                 const data = await response.json();
                 const produtos = data.produtos;
 
-                if (produtos.length === 0) {
+                if (!produtos || produtos.length === 0) {
                     noResultsMessage.style.display = "block";
                     noResultsMessage.textContent = "Nenhum produto encontrado.";
                     return;
@@ -271,7 +370,7 @@
                     const div = document.createElement('div');
                     div.classList.add('col-md-4', 'mb-4');
 
-                    const preco = prod.preco.toLocaleString('pt-BR', {
+                    const preco = Number(prod.preco).toLocaleString('pt-BR', {
                         style: 'currency',
                         currency: 'BRL'
                     });
@@ -298,29 +397,25 @@
         }
     </script>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const token = localStorage.getItem("token");
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    const loginItem  = document.querySelector('a[href="login.html"]').parentElement;
-    const logoutItem = document.getElementById("logoutBtn");
+    <!-- outros scripts do seu site -->
 
-    if (token) {
-        loginItem.classList.add("d-none");
-        logoutItem.classList.remove("d-none");
-    } else {
-        loginItem.classList.remove("d-none");
-        logoutItem.classList.add("d-none");
-    }
-});
-
-function logout() {
-    localStorage.removeItem("token");
-    alert("Você saiu da sua conta.");
-    window.location.href = "index.html";
-}
-</script>
-
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <div vw class="enabled">
+      <div vw-access-button class="active"></div>
+      <div vw-plugin-wrapper>
+          <div class="vw-plugin-top-wrapper"></div>
+      </div>
+    </div>
+    <script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+</body>
+</html>
 
 
 </body>
