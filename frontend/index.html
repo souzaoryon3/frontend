@@ -173,7 +173,8 @@
                 <li><a href="alertas.html"><i class="bi bi-bell"></i> Alertas</a></li>
                 <li><a href="feedback.html"><i class="bi bi-chat-dots"></i> Feedback</a></li>
                 <li><a href="configurar.html"><i class="bi bi-gear"></i> Configurações</a></li>
-                <li><a href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a></li>
+                <li id="loginNav"><a href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a></li>
+                <li id="logoutNav" style="display:none;"><a href="#" id="logoutLink"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
             </ul>
         </nav>
     </header>
@@ -223,25 +224,43 @@
     <script>
 document.addEventListener("DOMContentLoaded", () => {
     const token = localStorage.getItem("token");
+    const loginItem  = document.getElementById("loginNav");
+    const logoutItem = document.getElementById("logoutNav");
+    const logoutLink = document.getElementById("logoutLink");
 
-    const loginItem  = document.querySelector('a[href="login.html"]').parentElement;
-    const logoutItem = document.getElementById("logoutBtn");
+    if (token && loginItem && logoutItem) {
+        loginItem.style.display = "none";
+        logoutItem.style.display = "inline-block";
+    } else if (loginItem && logoutItem) {
+        loginItem.style.display = "inline-block";
+        logoutItem.style.display = "none";
+    }
 
-    if (token) {
-        loginItem.classList.add("d-none");
-        logoutItem.classList.remove("d-none");
-    } else {
-        loginItem.classList.remove("d-none");
-        logoutItem.classList.add("d-none");
+    if (logoutLink) {
+        logoutLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            localStorage.removeItem("token");
+            alert("Você saiu da sua conta.");
+            window.location.href = "index.html";
+        });
     }
 });
-
-function logout() {
-    localStorage.removeItem("token");
-    alert("Você saiu da sua conta.");
-    window.location.href = "index.html";
-}
 </script>
+
+    <!-- outros scripts do seu site -->
+
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <div vw class="enabled">
+      <div vw-access-button class="active"></div>
+      <div vw-plugin-wrapper>
+          <div class="vw-plugin-top-wrapper"></div>
+      </div>
+    </div>
+    <script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+</body>
+</html>
 
 
 </body>
